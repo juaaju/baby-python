@@ -5,7 +5,7 @@ from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 import mediapipe as mp
 import numpy as np
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import math
 import torch
 
@@ -92,11 +92,11 @@ from segment_anything import sam_model_registry, SamPredictor
 
 sam_checkpoint = "model/sam_vit_b_01ec64.pth"
 model_type = "vit_b"
-
+device = 'cpu'
 
 
 sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
-
+sam.to(device=device)
 predictor = SamPredictor(sam)
 
 def show_mask(mask, ax, random_color=False):
@@ -114,10 +114,10 @@ def show_points(coords, labels, ax, marker_size=375):
     ax.scatter(pos_points[:, 0], pos_points[:, 1], color='green', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)
     ax.scatter(neg_points[:, 0], neg_points[:, 1], color='red', marker='*', s=marker_size, edgecolor='white', linewidth=1.25)
 
-def show_box(box, ax):
-    x0, y0 = box[0], box[1]
-    w, h = box[2] - box[0], box[3] - box[1]
-    ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
+# def show_box(box, ax):
+#     x0, y0 = box[0], box[1]
+#     w, h = box[2] - box[0], box[3] - box[1]
+#     ax.add_patch(plt.Rectangle((x0, y0), w, h, edgecolor='green', facecolor=(0,0,0,0), lw=2))
 
 ################Yolo Detection Koin####################
 def detect(img):
@@ -146,7 +146,7 @@ def detect(img):
         width = height
     else:
         pass
-
+    print("Coin size: ",width)
     return coords, lists, width
 
 def coef(img):
@@ -343,4 +343,5 @@ def all_parameter(img1, img2):
   print(f'Lingkar kepala: {lingkar_kepala}, Lingkar lengan: {lingkar_lengan}, Lingkar paha: {lingkar_paha}, Lingkar perut: {lingkar_perut}, Lingkar dada: {lingkar_dada}, Total panjang bayi: {total_panjang_bayi}, Panjang kaki: {panjang_kaki}, Panjang tangan: {panjang_tangan}')
 
   return [lingkar_kepala, lingkar_lengan, lingkar_paha, lingkar_perut, lingkar_dada, total_panjang_bayi, panjang_kaki, panjang_tangan]
-# print(coef('baby5-side.jpeg')
+
+

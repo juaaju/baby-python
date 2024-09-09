@@ -1,11 +1,11 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS
+from flask_cors import CORS 
 import cv2
 import numpy as np
 import base64
 from PIL import Image
 from io import BytesIO
-from measure import all_parameter
+from sam_satu_kamera import all_params
 
 def base64_to_opencv_image(base64_string):
     # Remove the prefix 'data:image/jpeg;base64,' or similar
@@ -25,20 +25,20 @@ def base64_to_opencv_image(base64_string):
 
 
 app = Flask(__name__)
-CORS(app, origins="*")
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 # Contoh data sementara
 data = [
     {
         "id": "recent",
         "image1":"",
-        "image2":""
     }
 ]
 
 @app.route('/api/items', methods=['GET'])
 def get_items():
     
-    result = all_parameter("baby5-up.jpeg", "baby5-side.jpeg")
+    result = all_params("image1.jpg")
     return jsonify({"items": data,"result":result})
 
 # Route untuk mendapatkan data berdasarkan ID
@@ -64,18 +64,18 @@ def update_item(item_id):
     if item:
         item.update(request.get_json())
         base64_string1 = data[0]["image1"]
-        base64_string2 = data[0]["image2"]
+        
         string1=base64_string1[base64_string1.index(",")+1:]
-        string2=base64_string2[base64_string2.index(",")+1:]
+        
         base64_decode1 = base64.b64decode(string1)
-        base64_decode2 = base64.b64decode(string2)
+        
 
         img1 = Image.open(BytesIO(base64_decode1))
-        img2 = Image.open(BytesIO(base64_decode2))
+        
         img1 = img1.convert("RGB")
-        img2 = img2.convert("RGB")
+        
         img1.save("image1.jpg")
-        img2.save("image2.jpg")
+        
         return jsonify({"message": "Item updated successfully", "item": item})
     else:
         return jsonify({"message": "Item not found"}), 404
